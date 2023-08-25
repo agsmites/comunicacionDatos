@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Codificación Digital</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+    <div class="container">
+        <div class="container-form">
+
+            <h1>Codificación Digital</h1>
+            <input type="text" id="entradaDatos" placeholder="Ingrese los datos de 16 bits">
+            <select id="codigoLinea">
+                <option value="Unipolar">Unipolar</option>
+                <option value="NRZ">NRZ</option>
+                <option value="RZ">RZ</option>
+                <option value="Manchester">Manchester</option>
+                <option value="Manchester diferencial">Manchester diferencial</option>
+                <option value="AMI">AMI</option>
+                <option value="B8ZS">B8ZS</option>
+                <option value="HDB3">HDB3</option>
+            </select>
+            <button onclick="codificar()" class="button">Codificar</button>
+            <p id="resultadoCodificacion"></p>
+        </div>
+    </div>
+</main>
+    
+  <script src="app.js"></script>
+</body>
+</html>

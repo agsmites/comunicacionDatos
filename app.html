@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Codificación Digital a Digital</title>
+</head>
+<body>
+    <h1>Codificación Digital a Digital</h1>
+    <label for="dataInput">Ingrese datos de 16 bits:</label>
+    <input type="text" id="dataInput">
+    <br>
+    <label for="codeSelect">Seleccione el código de línea:</label>
+    <select id="codeSelect">
+        <option value="Unipolar">Unipolar</option>
+        <option value="NRZ">NRZ</option>
+        <option value="RZ">RZ</option>
+        <option value="Manchester">Manchester</option>
+        <option value="ManchesterDifferential">Manchester Diferencial</option>
+        <option value="AMI">AMI</option>
+        <option value="B8ZS">B8ZS</option>
+        <option value="HDB3">HDB3</option>
+    </select>
+    <br>
+    <button onclick="showEncoding()">Codificar</button>
+    <p id="resultLabel"></p>
+
+    <script>
+        function encodeDigital(data, encodingType) {
+            function unipolar(data) {
+                return data.replace(/0/g, '0 ').replace(/1/g, '1 ');
+            }
+
+            function nrz(data) {
+                return data.replace(/0/g, '-1 ').replace(/1/g, '1 ');
+            }
+
+            function rz(data) {
+                return data.replace(/0/g, '-1 0 ').replace(/1/g, '1 0 ');
+            }
+
+            function manchester(data) {
+                let encoded = '';
+                for (let i = 0; i < data.length; i++) {
+                    encoded += data[i] === '0' ? '-1 1 ' : '1 -1 ';
+                }
+                return encoded;
+            }
+
+            function manchesterDifferential(data) {
+                let lastBit = '1';
+                let encoded = '';
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i] === '0') {
+                        encoded += lastBit === '1' ? '-1 1 ' : '1 -1 ';
+                        lastBit = lastBit === '1' ? '0' : '1';
+                    } else {
+                        encoded += lastBit === '1' ? '1 -1 ' : '-1 1 ';
+                    }
+                }
+                return encoded;
+            }
+
+            function ami(data) {
+                let lastSignal = '0';
+                let encoded = '';
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i] === '0') {
+                        encoded += '0 ';
+                    } else {
+                        encoded += lastSignal === '0' ? '1 ' : '-1 ';
+                        lastSignal = lastSignal === '0' ? '1' : '0';
+                    }
+                }
+                return encoded;
+            }
+
+            function b8zs(data) {
+                let encoded = '';
+                let consecutiveZeroCount = 0;
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i] === '0') {
+                        consecutiveZeroCount++;
+                        if (consecutiveZeroCount === 8) {
+                            encoded += '+ + - - - + - ';
+                            consecutiveZeroCount = 0;
+                        } else {
+                            encoded += '0 ';
+                        }
+                    } else {
+                        encoded += '- ';
+                        consecutiveZeroCount = 0;
+                    }
+                }
+                return encoded;
+            }
+
+            function hdb3(data) {
+                let encoded = '';
+                let consecutiveZeroCount = 0;
+                let lastNonZeroIndex = -1;
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i] === '0') {
+                        consecutiveZeroCount++;
+                        if (consecutiveZeroCount === 4) {
+                            if (i - lastNonZeroIndex >= 4) {
+                                encoded += '0 0 0 + ';
+                            } else {
+                                encoded += '- - - + ';
+                            }
+                            lastNonZeroIndex = i;
+                            consecutiveZeroCount = 0;
+                        } else {
+                            encoded += '0 ';
+                        }
+                    } else {
+                        encoded += data[i] === '1' ? '+ ' : '- ';
+                        consecutiveZeroCount = 0;
+                        lastNonZeroIndex = i;
+                    }
+                }
+                return encoded;
+            }
+
+            let encodedData = '';
+            switch (encodingType) {
+                case 'Unipolar':
+                    encodedData = unipolar(data);
+                    break;
+                case 'NRZ':
+                    encodedData = nrz(data);
+                    break;
+                case 'RZ':
+                    encodedData = rz(data);
+                    break;
+                case 'Manchester':
+                    encodedData = manchester(data);
+                    break;
+                case 'ManchesterDifferential':
+                    encodedData = manchesterDifferential(data);
+                    break;
+                case 'AMI':
+                    encodedData = ami(data);
+                    break;
+                case 'B8ZS':
+                    encodedData = b8zs(data);
+                    break;
+                case 'HDB3':
+                    encodedData = hdb3(data);
+                    break;
+                default:
+                    encodedData = 'Tipo de codificación no reconocido';
+            }
+
+            return encodedData;
+        }
+
+        function showEncoding() {
+            const inputData = document.getElementById('dataInput').value;
+            const selectedCode = document.getElementById('codeSelect').value;
+            const encodedResult = encodeDigital(inputData, selectedCode);
+
+            document.getElementById('resultLabel').textContent = 'Secuencia codificada: ' + encodedResult;
+        }
+    </script>
+</body>
+</html>
